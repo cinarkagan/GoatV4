@@ -8,11 +8,11 @@ local function goatGithubRequest(scripturl)
 	return readfile("goat/"..scripturl)
 end
 
-shared.CustomSavegoat = 6872274481
-if pcall(function() readfile("goat/CustomModules/6872274481.lua") end) then
-	loadstring(readfile("goat/CustomModules/6872274481.lua"))()
+shared.CustomSavegoat = 8542275097
+if pcall(function() readfile("goat/CustomModules/8542275097.lua") end) then
+	loadstring(readfile("goat/CustomModules/8542275097.lua"))()
 else
-	local publicrepo = goatGithubRequest("CustomModules/6872274481.lua")
+	local publicrepo = goatGithubRequest("CustomModules/8542275097.lua")
 	if publicrepo then
 		loadstring(publicrepo)()
 	end
