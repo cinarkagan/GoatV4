@@ -1,7 +1,7 @@
 repeat task.wait() until game:IsLoaded()
 local GuiLibrary
-local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
-local vapeInjected = true
+local baseDirectory = (shared.goatPrivate and "goatprivate/" or "goat/")
+local goatInjected = true
 local oldRainbow = false
 local errorPopupShown = false
 local redownloadedAssets = false
@@ -27,7 +27,7 @@ local function displayErrorPopup(text, funclist)
 	local prompt = ErrorPrompt.new("Default")
 	prompt._hideErrorCode = true
 	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-	prompt:setErrorTitle("Vape")
+	prompt:setErrorTitle("goat")
 	local funcs = {}
 	local num = 0
 	for i,v in pairs(funclist) do 
@@ -53,8 +53,8 @@ local function displayErrorPopup(text, funclist)
 	setidentity(oldidentity)
 end
 
-local function vapeGithubRequest(scripturl)
-	if not isfile("vape/"..scripturl) then
+local function goatGithubRequest(scripturl)
+	if not isfile("goat/"..scripturl) then
 		local suc, res
 		task.delay(15, function()
 			if not res and not errorPopupShown then 
@@ -62,18 +62,18 @@ local function vapeGithubRequest(scripturl)
 				displayErrorPopup("The connection to github is taking a while, Please be patient.")
 			end
 		end)
-		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/"..scripturl, true) end)
 		if not suc or res == "404: Not Found" then
-			displayErrorPopup("Failed to connect to github : vape/"..scripturl.." : "..res)
+			displayErrorPopup("Failed to connect to github : goat/"..scripturl.." : "..res)
 			error(res)
 		end
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-		writefile("vape/"..scripturl, res)
+		writefile("goat/"..scripturl, res)
 	end
-	return readfile("vape/"..scripturl)
+	return readfile("goat/"..scripturl)
 end
 
-local function downloadVapeAsset(path)
+local function downloadgoatAsset(path)
 	if not isfile(path) then
 		task.spawn(function()
 			local textlabel = Instance.new("TextLabel")
@@ -89,7 +89,7 @@ local function downloadVapeAsset(path)
 			repeat task.wait() until isfile(path)
 			textlabel:Destroy()
 		end)
-		local suc, req = pcall(function() return vapeGithubRequest(path:gsub("vape/assets", "assets")) end)
+		local suc, req = pcall(function() return goatGithubRequest(path:gsub("goat/assets", "assets")) end)
         if suc and req then
 		    writefile(path, req)
         else
@@ -99,75 +99,75 @@ local function downloadVapeAsset(path)
 	return getcustomasset(path) 
 end
 
-assert(not shared.VapeExecuted, "Vape Already Injected")
-shared.VapeExecuted = true
+assert(not shared.goatExecuted, "goat Already Injected")
+shared.goatExecuted = true
 
-for i,v in pairs({baseDirectory:gsub("/", ""), "vape", "vape/Libraries", "vape/CustomModules", "vape/Profiles", baseDirectory.."Profiles", "vape/assets"}) do 
+for i,v in pairs({baseDirectory:gsub("/", ""), "goat", "goat/Libraries", "goat/CustomModules", "goat/Profiles", baseDirectory.."Profiles", "goat/assets"}) do 
 	if not isfolder(v) then makefolder(v) end
 end
 task.spawn(function()
-	local success, assetver = pcall(function() return vapeGithubRequest("assetsversion.txt") end)
-	if not isfile("vape/assetsversion.txt") then writefile("vape/assetsversion.txt", "0") end
-	if success and assetver > readfile("vape/assetsversion.txt") then
+	local success, assetver = pcall(function() return goatGithubRequest("assetsversion.txt") end)
+	if not isfile("goat/assetsversion.txt") then writefile("goat/assetsversion.txt", "0") end
+	if success and assetver > readfile("goat/assetsversion.txt") then
 		redownloadedAssets = true
-		if isfolder("vape/assets") and not shared.VapeDeveloper then
+		if isfolder("goat/assets") and not shared.goatDeveloper then
 			if delfolder then
-				delfolder("vape/assets")
-				makefolder("vape/assets")
+				delfolder("goat/assets")
+				makefolder("goat/assets")
 			end
 		end
-		writefile("vape/assetsversion.txt", assetver)
+		writefile("goat/assetsversion.txt", assetver)
 	end
 end)
-if not isfile("vape/CustomModules/cachechecked.txt") then
+if not isfile("goat/CustomModules/cachechecked.txt") then
 	local isNotCached = false
-	for i,v in pairs({"vape/Universal.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua"}) do 
+	for i,v in pairs({"goat/Universal.lua", "goat/MainScript.lua", "goat/GuiLibrary.lua"}) do 
 		if isfile(v) and not readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 			isNotCached = true
 		end 
 	end
-	if isfolder("vape/CustomModules") then 
-		for i,v in pairs(listfiles("vape/CustomModules")) do 
+	if isfolder("goat/CustomModules") then 
+		for i,v in pairs(listfiles("goat/CustomModules")) do 
 			if isfile(v) and not readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 				isNotCached = true
 			end 
 		end
 	end
-	if isNotCached and not shared.VapeDeveloper then
-		displayErrorPopup("Vape has detected uncached files, If you have CustomModules click no, else click yes.", {No = function() end, Yes = function()
-			for i,v in pairs({"vape/Universal.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua"}) do 
+	if isNotCached and not shared.goatDeveloper then
+		displayErrorPopup("goat has detected uncached files, If you have CustomModules click no, else click yes.", {No = function() end, Yes = function()
+			for i,v in pairs({"goat/Universal.lua", "goat/MainScript.lua", "goat/GuiLibrary.lua"}) do 
 				if isfile(v) and not readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 					delfile(v)
 				end 
 			end
-			for i,v in pairs(listfiles("vape/CustomModules")) do 
+			for i,v in pairs(listfiles("goat/CustomModules")) do 
 				if isfile(v) and not readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 					local last = v:split('\\')
 					last = last[#last]
-					local suc, publicrepo = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/CustomModules/"..last) end)
+					local suc, publicrepo = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/CustomModules/"..last) end)
 					if suc and publicrepo and publicrepo ~= "404: Not Found" then
-						writefile("vape/CustomModules/"..last, "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..publicrepo)
+						writefile("goat/CustomModules/"..last, "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..publicrepo)
 					end
 				end 
 			end
 		end})
 	end
-	writefile("vape/CustomModules/cachechecked.txt", "verified")
+	writefile("goat/CustomModules/cachechecked.txt", "verified")
 end
 
-GuiLibrary = loadstring(vapeGithubRequest("GuiLibrary.lua"))()
+GuiLibrary = loadstring(goatGithubRequest("GuiLibrary.lua"))()
 shared.GuiLibrary = GuiLibrary
 
 local saveSettingsLoop = coroutine.create(function()
 	repeat
 		GuiLibrary.SaveSettings()
         task.wait(10)
-	until not vapeInjected or not GuiLibrary
+	until not goatInjected or not GuiLibrary
 end)
 
 task.spawn(function()
 	local image = Instance.new("ImageLabel")
-	image.Image = downloadVapeAsset("vape/assets/CombatIcon.png")
+	image.Image = downloadgoatAsset("goat/assets/CombatIcon.png")
 	image.Position = UDim2.new()
 	image.BackgroundTransparency = 1
 	image.Size = UDim2.fromOffset(100, 100)
@@ -179,10 +179,10 @@ task.spawn(function()
     end)
 	task.spawn(function()
 		task.wait(15)
-		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("vape/assets/check3.txt")) then 
+		if image and image.ContentImageSize == Vector2.zero and (not errorPopupShown) and (not redownloadedAssets) and (not isfile("goat/assets/check3.txt")) then 
             errorPopupShown = true
             displayErrorPopup("Assets failed to load, Try another executor (executor : "..(identifyexecutor and identifyexecutor() or "Unknown")..")", {OK = function()
-                writefile("vape/assets/check3.txt", "")
+                writefile("goat/assets/check3.txt", "")
             end})
         end
 	end)
@@ -191,73 +191,73 @@ end)
 local GUI = GuiLibrary.CreateMainWindow()
 local Combat = GuiLibrary.CreateWindow({
 	Name = "Combat", 
-	Icon = "vape/assets/CombatIcon.png", 
+	Icon = "goat/assets/CombatIcon.png", 
 	IconSize = 15
 })
 local Blatant = GuiLibrary.CreateWindow({
 	Name = "Blatant", 
-	Icon = "vape/assets/BlatantIcon.png", 
+	Icon = "goat/assets/BlatantIcon.png", 
 	IconSize = 16
 })
 local Render = GuiLibrary.CreateWindow({
 	Name = "Render", 
-	Icon = "vape/assets/RenderIcon.png", 
+	Icon = "goat/assets/RenderIcon.png", 
 	IconSize = 17
 })
 local Utility = GuiLibrary.CreateWindow({
 	Name = "Utility", 
-	Icon = "vape/assets/UtilityIcon.png", 
+	Icon = "goat/assets/UtilityIcon.png", 
 	IconSize = 17
 })
 local World = GuiLibrary.CreateWindow({
 	Name = "World", 
-	Icon = "vape/assets/WorldIcon.png", 
+	Icon = "goat/assets/WorldIcon.png", 
 	IconSize = 16
 })
 local Friends = GuiLibrary.CreateWindow2({
 	Name = "Friends", 
-	Icon = "vape/assets/FriendsIcon.png", 
+	Icon = "goat/assets/FriendsIcon.png", 
 	IconSize = 17
 })
 local Targets = GuiLibrary.CreateWindow2({
 	Name = "Targets", 
-	Icon = "vape/assets/FriendsIcon.png", 
+	Icon = "goat/assets/FriendsIcon.png", 
 	IconSize = 17
 })
 local Profiles = GuiLibrary.CreateWindow2({
 	Name = "Profiles", 
-	Icon = "vape/assets/ProfilesIcon.png", 
+	Icon = "goat/assets/ProfilesIcon.png", 
 	IconSize = 19
 })
 GUI.CreateDivider()
 GUI.CreateButton({
 	Name = "Combat", 
 	Function = function(callback) Combat.SetVisible(callback) end, 
-	Icon = "vape/assets/CombatIcon.png", 
+	Icon = "goat/assets/CombatIcon.png", 
 	IconSize = 15
 })
 GUI.CreateButton({
 	Name = "Blatant", 
 	Function = function(callback) Blatant.SetVisible(callback) end, 
-	Icon = "vape/assets/BlatantIcon.png", 
+	Icon = "goat/assets/BlatantIcon.png", 
 	IconSize = 16
 })
 GUI.CreateButton({
 	Name = "Render", 
 	Function = function(callback) Render.SetVisible(callback) end, 
-	Icon = "vape/assets/RenderIcon.png", 
+	Icon = "goat/assets/RenderIcon.png", 
 	IconSize = 17
 })
 GUI.CreateButton({
 	Name = "Utility", 
 	Function = function(callback) Utility.SetVisible(callback) end, 
-	Icon = "vape/assets/UtilityIcon.png", 
+	Icon = "goat/assets/UtilityIcon.png", 
 	IconSize = 17
 })
 GUI.CreateButton({
 	Name = "World", 
 	Function = function(callback) World.SetVisible(callback) end, 
-	Icon = "vape/assets/WorldIcon.png", 
+	Icon = "goat/assets/WorldIcon.png", 
 	IconSize = 16
 })
 GUI.CreateDivider("MISC")
@@ -359,7 +359,7 @@ ProfilesTextList = Profiles.CreateTextList({
 	end, 
 	RemoveFunction = function(profileIndex, profileName) 
 		if profileName ~= "default" and profileName ~= GuiLibrary.CurrentProfile then 
-			pcall(function() delfile(baseDirectory.."Profiles/"..profileName..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt") end)
+			pcall(function() delfile(baseDirectory.."Profiles/"..profileName..(shared.CustomSavegoat or game.PlaceId)..".goatprofile.txt") end)
 			GuiLibrary.Profiles[profileName] = nil
 		else
 			table.insert(ProfilesTextList.ObjectList, profileName)
@@ -385,7 +385,7 @@ ProfilesTextList = Profiles.CreateTextList({
 		bindbkg.Visible = GuiLibrary.Profiles[profileName].Keybind ~= ""
 		bindbkg.Parent = profileObject
 		local bindimg = Instance.new("ImageLabel")
-		bindimg.Image = downloadVapeAsset("vape/assets/KeybindIcon.png")
+		bindimg.Image = downloadgoatAsset("goat/assets/KeybindIcon.png")
 		bindimg.BackgroundTransparency = 1
 		bindimg.Size = UDim2.new(0, 12, 0, 12)
 		bindimg.Position = UDim2.new(0, 4, 0, 5)
@@ -449,14 +449,14 @@ ProfilesTextList = Profiles.CreateTextList({
 			end
 		end)
 		bindbkg.MouseEnter:Connect(function() 
-			bindimg.Image = downloadVapeAsset("vape/assets/PencilIcon.png") 
+			bindimg.Image = downloadgoatAsset("goat/assets/PencilIcon.png") 
 			bindimg.Visible = true
 			bindtext.Visible = false
 			bindbkg.Size = UDim2.new(0, 20, 0, 21)
 			bindbkg.Position = UDim2.new(1, -50, 0, 6)
 		end)
 		bindbkg.MouseLeave:Connect(function() 
-			bindimg.Image = downloadVapeAsset("vape/assets/KeybindIcon.png")
+			bindimg.Image = downloadgoatAsset("goat/assets/KeybindIcon.png")
 			if GuiLibrary.Profiles[profileName].Keybind ~= "" then
 				bindimg.Visible = false
 				bindtext.Visible = true
@@ -510,7 +510,7 @@ local OnlineProfilesButtonImage = Instance.new("ImageLabel")
 OnlineProfilesButtonImage.BackgroundTransparency = 1
 OnlineProfilesButtonImage.Position = UDim2.new(0, 14, 0, 7)
 OnlineProfilesButtonImage.Size = UDim2.new(0, 17, 0, 16)
-OnlineProfilesButtonImage.Image = downloadVapeAsset("vape/assets/OnlineProfilesButton.png")
+OnlineProfilesButtonImage.Image = downloadgoatAsset("goat/assets/OnlineProfilesButton.png")
 OnlineProfilesButtonImage.ImageColor3 = Color3.fromRGB(121, 121, 121)
 OnlineProfilesButtonImage.ZIndex = 1
 OnlineProfilesButtonImage.Active = false
@@ -531,7 +531,7 @@ OnlineProfilesExitButton.Name = "OnlineProfilesExitButton"
 OnlineProfilesExitButton.ImageColor3 = Color3.fromRGB(121, 121, 121)
 OnlineProfilesExitButton.Size = UDim2.new(0, 24, 0, 24)
 OnlineProfilesExitButton.AutoButtonColor = false
-OnlineProfilesExitButton.Image = downloadVapeAsset("vape/assets/ExitIcon1.png")
+OnlineProfilesExitButton.Image = downloadgoatAsset("goat/assets/ExitIcon1.png")
 OnlineProfilesExitButton.Visible = true
 OnlineProfilesExitButton.Position = UDim2.new(1, -31, 0, 8)
 OnlineProfilesExitButton.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
@@ -548,7 +548,7 @@ end)
 local OnlineProfilesFrameShadow = Instance.new("ImageLabel")
 OnlineProfilesFrameShadow.AnchorPoint = Vector2.new(0.5, 0.5)
 OnlineProfilesFrameShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-OnlineProfilesFrameShadow.Image = downloadVapeAsset("vape/assets/WindowBlur.png")
+OnlineProfilesFrameShadow.Image = downloadgoatAsset("goat/assets/WindowBlur.png")
 OnlineProfilesFrameShadow.BackgroundTransparency = 1
 OnlineProfilesFrameShadow.ZIndex = -1
 OnlineProfilesFrameShadow.Size = UDim2.new(1, 6, 1, 6)
@@ -558,7 +558,7 @@ OnlineProfilesFrameShadow.SliceCenter = Rect.new(10, 10, 118, 118)
 OnlineProfilesFrameShadow.Parent = OnlineProfilesFrame
 local OnlineProfilesFrameIcon = Instance.new("ImageLabel")
 OnlineProfilesFrameIcon.Size = UDim2.new(0, 19, 0, 16)
-OnlineProfilesFrameIcon.Image = downloadVapeAsset("vape/assets/ProfilesIcon.png")
+OnlineProfilesFrameIcon.Image = downloadgoatAsset("goat/assets/ProfilesIcon.png")
 OnlineProfilesFrameIcon.Name = "WindowIcon"
 OnlineProfilesFrameIcon.BackgroundTransparency = 1
 OnlineProfilesFrameIcon.Position = UDim2.new(0, 10, 0, 13)
@@ -627,15 +627,15 @@ OnlineProfilesButton.MouseButton1Click:Connect(function()
 	GuiLibrary.MainGui.ScaledGui.ClickGui.Visible = false
 	if not profilesLoaded then
 		local onlineprofiles = {}
-		local saveplaceid = tostring(shared.CustomSaveVape or game.PlaceId)
+		local saveplaceid = tostring(shared.CustomSavegoat or game.PlaceId)
         local success, result = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/VapeProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
+            return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/goatProfiles/main/Profiles/"..saveplaceid.."/profilelist.txt", true))
         end)
 		for i,v in pairs(success and result or {}) do 
 			onlineprofiles[i] = v
 		end
 		for i2,v2 in pairs(onlineprofiles) do
-			local profileurl = "https://raw.githubusercontent.com/cinarkagan/VapeProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
+			local profileurl = "https://raw.githubusercontent.com/cinarkagan/goatProfiles/main/Profiles/"..saveplaceid.."/"..v2.OnlineProfileName
 			local profilebox = Instance.new("Frame")
 			profilebox.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
 			profilebox.Parent = OnlineProfilesList
@@ -686,7 +686,7 @@ OnlineProfilesButton.MouseButton1Click:Connect(function()
 				profiledownload.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
 			end)
 			profiledownload.MouseButton1Click:Connect(function()
-				writefile(customdir.."Profiles/"..v2.ProfileName..saveplaceid..".vapeprofile.txt", game:HttpGet(profileurl, true))
+				writefile(customdir.."Profiles/"..v2.ProfileName..saveplaceid..".goatprofile.txt", game:HttpGet(profileurl, true))
 				GuiLibrary.Profiles[v2.ProfileName] = {Keybind = "", Selected = false}
 				local profiles = {}
 				for i,v in pairs(GuiLibrary.Profiles) do 
@@ -716,13 +716,13 @@ GUI.CreateDivider()
 
 local TextGUI = GuiLibrary.CreateCustomWindow({
 	Name = "Text GUI", 
-	Icon = "vape/assets/TextGUIIcon1.png", 
+	Icon = "goat/assets/TextGUIIcon1.png", 
 	IconSize = 21
 })
 local TextGUICircleObject = {CircleList = {}}
 GUI.CreateCustomToggle({
 	Name = "Text GUI", 
-	Icon = "vape/assets/TextGUIIcon3.png",
+	Icon = "goat/assets/TextGUIIcon3.png",
 	Function = function(callback) TextGUI.SetVisible(callback) end,
 	Priority = 2
 })	
@@ -733,114 +733,114 @@ local TextGUIBackgroundToggle = {Enabled = false}
 local TextGUIObjects = {Logo = {}, Labels = {}, ShadowLabels = {}, Backgrounds = {}}
 local TextGUIConnections = {}
 local TextGUIFormatted = {}
-local VapeLogoFrame = Instance.new("Frame")
-VapeLogoFrame.BackgroundTransparency = 1
-VapeLogoFrame.Size = UDim2.new(1, 0, 1, 0)
-VapeLogoFrame.Parent = TextGUI.GetCustomChildren()
-local VapeLogo = Instance.new("ImageLabel")
-VapeLogo.Parent = VapeLogoFrame
-VapeLogo.Name = "Logo"
-VapeLogo.Size = UDim2.new(0, 100, 0, 27)
-VapeLogo.Position = UDim2.new(1, -140, 0, 3)
-VapeLogo.BackgroundColor3 = Color3.new()
-VapeLogo.BorderSizePixel = 0
-VapeLogo.BackgroundTransparency = 1
-VapeLogo.Visible = true
-VapeLogo.Image = downloadVapeAsset("vape/assets/VapeLogo3.png")
-local VapeLogoV4 = Instance.new("ImageLabel")
-VapeLogoV4.Parent = VapeLogo
-VapeLogoV4.Size = UDim2.new(0, 41, 0, 24)
-VapeLogoV4.Name = "Logo2"
-VapeLogoV4.Position = UDim2.new(1, 0, 0, 1)
-VapeLogoV4.BorderSizePixel = 0
-VapeLogoV4.BackgroundColor3 = Color3.new()
-VapeLogoV4.BackgroundTransparency = 1
-VapeLogoV4.Image = downloadVapeAsset("vape/assets/VapeLogo4.png")
-local VapeLogoShadow = VapeLogo:Clone()
-VapeLogoShadow.ImageColor3 = Color3.new()
-VapeLogoShadow.ImageTransparency = 0.5
-VapeLogoShadow.ZIndex = 0
-VapeLogoShadow.Position = UDim2.new(0, 1, 0, 1)
-VapeLogoShadow.Visible = false
-VapeLogoShadow.Parent = VapeLogo
-VapeLogoShadow.Logo2.ImageColor3 = Color3.new()
-VapeLogoShadow.Logo2.ZIndex = 0
-VapeLogoShadow.Logo2.ImageTransparency = 0.5
-local VapeLogoGradient = Instance.new("UIGradient")
-VapeLogoGradient.Rotation = 90
-VapeLogoGradient.Parent = VapeLogo
-local VapeLogoGradient2 = Instance.new("UIGradient")
-VapeLogoGradient2.Rotation = 90
-VapeLogoGradient2.Parent = VapeLogoV4
-local VapeText = Instance.new("TextLabel")
-VapeText.Parent = VapeLogoFrame
-VapeText.Size = UDim2.new(1, 0, 1, 0)
-VapeText.Position = UDim2.new(1, -154, 0, 35)
-VapeText.TextColor3 = Color3.new(1, 1, 1)
-VapeText.RichText = true
-VapeText.BackgroundTransparency = 1
-VapeText.TextXAlignment = Enum.TextXAlignment.Left
-VapeText.TextYAlignment = Enum.TextYAlignment.Top
-VapeText.BorderSizePixel = 0
-VapeText.BackgroundColor3 = Color3.new()
-VapeText.Font = Enum.Font.SourceSans
-VapeText.Text = ""
-VapeText.TextSize = 23
-local VapeTextExtra = Instance.new("TextLabel")
-VapeTextExtra.Name = "ExtraText"
-VapeTextExtra.Parent = VapeText
-VapeTextExtra.Size = UDim2.new(1, 0, 1, 0)
-VapeTextExtra.Position = UDim2.new(0, 1, 0, 1)
-VapeTextExtra.BorderSizePixel = 0
-VapeTextExtra.Visible = false
-VapeTextExtra.ZIndex = 0
-VapeTextExtra.Text = ""
-VapeTextExtra.BackgroundTransparency = 1
-VapeTextExtra.TextTransparency = 0.5
-VapeTextExtra.TextXAlignment = Enum.TextXAlignment.Left
-VapeTextExtra.TextYAlignment = Enum.TextYAlignment.Top
-VapeTextExtra.TextColor3 = Color3.new()
-VapeTextExtra.Font = Enum.Font.SourceSans
-VapeTextExtra.TextSize = 23
-local VapeCustomText = Instance.new("TextLabel")
-VapeCustomText.TextSize = 30
-VapeCustomText.Font = Enum.Font.GothamBold
-VapeCustomText.Size = UDim2.new(1, 0, 1, 0)
-VapeCustomText.BackgroundTransparency = 1
-VapeCustomText.Position = UDim2.new(0, 0, 0, 35)
-VapeCustomText.TextXAlignment = Enum.TextXAlignment.Left
-VapeCustomText.TextYAlignment = Enum.TextYAlignment.Top
-VapeCustomText.Text = ""
-VapeCustomText.Parent = VapeLogoFrame
-local VapeCustomTextShadow = VapeCustomText:Clone()
-VapeCustomTextShadow.ZIndex = -1
-VapeCustomTextShadow.Size = UDim2.new(1, 0, 1, 0)
-VapeCustomTextShadow.TextTransparency = 0.5
-VapeCustomTextShadow.TextColor3 = Color3.new()
-VapeCustomTextShadow.Position = UDim2.new(0, 1, 0, 1)
-VapeCustomTextShadow.Parent = VapeCustomText
-VapeCustomText:GetPropertyChangedSignal("TextXAlignment"):Connect(function()
-	VapeCustomTextShadow.TextXAlignment = VapeCustomText.TextXAlignment
+local goatLogoFrame = Instance.new("Frame")
+goatLogoFrame.BackgroundTransparency = 1
+goatLogoFrame.Size = UDim2.new(1, 0, 1, 0)
+goatLogoFrame.Parent = TextGUI.GetCustomChildren()
+local goatLogo = Instance.new("ImageLabel")
+goatLogo.Parent = goatLogoFrame
+goatLogo.Name = "Logo"
+goatLogo.Size = UDim2.new(0, 100, 0, 27)
+goatLogo.Position = UDim2.new(1, -140, 0, 3)
+goatLogo.BackgroundColor3 = Color3.new()
+goatLogo.BorderSizePixel = 0
+goatLogo.BackgroundTransparency = 1
+goatLogo.Visible = true
+goatLogo.Image = downloadgoatAsset("goat/assets/goatLogo3.png")
+local goatLogoV4 = Instance.new("ImageLabel")
+goatLogoV4.Parent = goatLogo
+goatLogoV4.Size = UDim2.new(0, 41, 0, 24)
+goatLogoV4.Name = "Logo2"
+goatLogoV4.Position = UDim2.new(1, 0, 0, 1)
+goatLogoV4.BorderSizePixel = 0
+goatLogoV4.BackgroundColor3 = Color3.new()
+goatLogoV4.BackgroundTransparency = 1
+goatLogoV4.Image = downloadgoatAsset("goat/assets/goatLogo4.png")
+local goatLogoShadow = goatLogo:Clone()
+goatLogoShadow.ImageColor3 = Color3.new()
+goatLogoShadow.ImageTransparency = 0.5
+goatLogoShadow.ZIndex = 0
+goatLogoShadow.Position = UDim2.new(0, 1, 0, 1)
+goatLogoShadow.Visible = false
+goatLogoShadow.Parent = goatLogo
+goatLogoShadow.Logo2.ImageColor3 = Color3.new()
+goatLogoShadow.Logo2.ZIndex = 0
+goatLogoShadow.Logo2.ImageTransparency = 0.5
+local goatLogoGradient = Instance.new("UIGradient")
+goatLogoGradient.Rotation = 90
+goatLogoGradient.Parent = goatLogo
+local goatLogoGradient2 = Instance.new("UIGradient")
+goatLogoGradient2.Rotation = 90
+goatLogoGradient2.Parent = goatLogoV4
+local goatText = Instance.new("TextLabel")
+goatText.Parent = goatLogoFrame
+goatText.Size = UDim2.new(1, 0, 1, 0)
+goatText.Position = UDim2.new(1, -154, 0, 35)
+goatText.TextColor3 = Color3.new(1, 1, 1)
+goatText.RichText = true
+goatText.BackgroundTransparency = 1
+goatText.TextXAlignment = Enum.TextXAlignment.Left
+goatText.TextYAlignment = Enum.TextYAlignment.Top
+goatText.BorderSizePixel = 0
+goatText.BackgroundColor3 = Color3.new()
+goatText.Font = Enum.Font.SourceSans
+goatText.Text = ""
+goatText.TextSize = 23
+local goatTextExtra = Instance.new("TextLabel")
+goatTextExtra.Name = "ExtraText"
+goatTextExtra.Parent = goatText
+goatTextExtra.Size = UDim2.new(1, 0, 1, 0)
+goatTextExtra.Position = UDim2.new(0, 1, 0, 1)
+goatTextExtra.BorderSizePixel = 0
+goatTextExtra.Visible = false
+goatTextExtra.ZIndex = 0
+goatTextExtra.Text = ""
+goatTextExtra.BackgroundTransparency = 1
+goatTextExtra.TextTransparency = 0.5
+goatTextExtra.TextXAlignment = Enum.TextXAlignment.Left
+goatTextExtra.TextYAlignment = Enum.TextYAlignment.Top
+goatTextExtra.TextColor3 = Color3.new()
+goatTextExtra.Font = Enum.Font.SourceSans
+goatTextExtra.TextSize = 23
+local goatCustomText = Instance.new("TextLabel")
+goatCustomText.TextSize = 30
+goatCustomText.Font = Enum.Font.GothamBold
+goatCustomText.Size = UDim2.new(1, 0, 1, 0)
+goatCustomText.BackgroundTransparency = 1
+goatCustomText.Position = UDim2.new(0, 0, 0, 35)
+goatCustomText.TextXAlignment = Enum.TextXAlignment.Left
+goatCustomText.TextYAlignment = Enum.TextYAlignment.Top
+goatCustomText.Text = ""
+goatCustomText.Parent = goatLogoFrame
+local goatCustomTextShadow = goatCustomText:Clone()
+goatCustomTextShadow.ZIndex = -1
+goatCustomTextShadow.Size = UDim2.new(1, 0, 1, 0)
+goatCustomTextShadow.TextTransparency = 0.5
+goatCustomTextShadow.TextColor3 = Color3.new()
+goatCustomTextShadow.Position = UDim2.new(0, 1, 0, 1)
+goatCustomTextShadow.Parent = goatCustomText
+goatCustomText:GetPropertyChangedSignal("TextXAlignment"):Connect(function()
+	goatCustomTextShadow.TextXAlignment = goatCustomText.TextXAlignment
 end)
-local VapeBackground = Instance.new("Frame")
-VapeBackground.BackgroundTransparency = 1
-VapeBackground.BorderSizePixel = 0
-VapeBackground.BackgroundColor3 = Color3.new()
-VapeBackground.Size = UDim2.new(1, 0, 1, 0)
-VapeBackground.Visible = false 
-VapeBackground.Parent = VapeLogoFrame
-VapeBackground.ZIndex = 0
-local VapeBackgroundList = Instance.new("UIListLayout")
-VapeBackgroundList.FillDirection = Enum.FillDirection.Vertical
-VapeBackgroundList.SortOrder = Enum.SortOrder.LayoutOrder
-VapeBackgroundList.Padding = UDim.new(0, 0)
-VapeBackgroundList.Parent = VapeBackground
-local VapeBackgroundTable = {}
-local VapeScale = Instance.new("UIScale")
-VapeScale.Parent = VapeLogoFrame
+local goatBackground = Instance.new("Frame")
+goatBackground.BackgroundTransparency = 1
+goatBackground.BorderSizePixel = 0
+goatBackground.BackgroundColor3 = Color3.new()
+goatBackground.Size = UDim2.new(1, 0, 1, 0)
+goatBackground.Visible = false 
+goatBackground.Parent = goatLogoFrame
+goatBackground.ZIndex = 0
+local goatBackgroundList = Instance.new("UIListLayout")
+goatBackgroundList.FillDirection = Enum.FillDirection.Vertical
+goatBackgroundList.SortOrder = Enum.SortOrder.LayoutOrder
+goatBackgroundList.Padding = UDim.new(0, 0)
+goatBackgroundList.Parent = goatBackground
+local goatBackgroundTable = {}
+local goatScale = Instance.new("UIScale")
+goatScale.Parent = goatLogoFrame
 
 local function TextGUIUpdate()
-	local scaledgui = vapeInjected and GuiLibrary.MainGui.ScaledGui
+	local scaledgui = goatInjected and GuiLibrary.MainGui.ScaledGui
 	if scaledgui and scaledgui.Visible then
 		local formattedText = ""
 		local moduleList = {}
@@ -860,7 +860,7 @@ local function TextGUIUpdate()
 			table.sort(moduleList, function(a, b) return a.Text:lower() < b.Text:lower() end)
 		else
 			table.sort(moduleList, function(a, b) 
-				return textService:GetTextSize(a.Text..a.ExtraText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)).X > textService:GetTextSize(b.Text..b.ExtraText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)).X 
+				return textService:GetTextSize(a.Text..a.ExtraText, goatText.TextSize, goatText.Font, Vector2.new(1000000, 1000000)).X > textService:GetTextSize(b.Text..b.ExtraText, goatText.TextSize, goatText.Font, Vector2.new(1000000, 1000000)).X 
 			end)
 		end
 
@@ -878,30 +878,30 @@ local function TextGUIUpdate()
 		end
 
 		TextGUIFormatted = moduleList
-		VapeTextExtra.Text = formattedText
-        VapeText.Size = UDim2.fromOffset(154, (formattedText ~= "" and textService:GetTextSize(formattedText, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000)) or Vector2.zero).Y)
+		goatTextExtra.Text = formattedText
+        goatText.Size = UDim2.fromOffset(154, (formattedText ~= "" and textService:GetTextSize(formattedText, goatText.TextSize, goatText.Font, Vector2.new(1000000, 1000000)) or Vector2.zero).Y)
 
         if TextGUI.GetCustomChildren().Parent then
             if (TextGUI.GetCustomChildren().Parent.Position.X.Offset + TextGUI.GetCustomChildren().Parent.Size.X.Offset / 2) >= (gameCamera.ViewportSize.X / 2) then
-                VapeText.TextXAlignment = Enum.TextXAlignment.Right
-                VapeTextExtra.TextXAlignment = Enum.TextXAlignment.Right
-                VapeTextExtra.Position = UDim2.fromOffset(5, 1)
-                VapeLogo.Position = UDim2.new(1, -142, 0, 8)
-                VapeText.Position = UDim2.new(1, -158, 0, (VapeLogo.Visible and (TextGUIBackgroundToggle.Enabled and 41 or 35) or 5) + (VapeCustomText.Visible and 25 or 0) - 23)
-                VapeCustomText.Position = UDim2.fromOffset(0, VapeLogo.Visible and 35 or 0)
-                VapeCustomText.TextXAlignment = Enum.TextXAlignment.Right
-                VapeBackgroundList.HorizontalAlignment = Enum.HorizontalAlignment.Right
-                VapeBackground.Position = VapeText.Position + UDim2.fromOffset(-56, 2 + 23)
+                goatText.TextXAlignment = Enum.TextXAlignment.Right
+                goatTextExtra.TextXAlignment = Enum.TextXAlignment.Right
+                goatTextExtra.Position = UDim2.fromOffset(5, 1)
+                goatLogo.Position = UDim2.new(1, -142, 0, 8)
+                goatText.Position = UDim2.new(1, -158, 0, (goatLogo.Visible and (TextGUIBackgroundToggle.Enabled and 41 or 35) or 5) + (goatCustomText.Visible and 25 or 0) - 23)
+                goatCustomText.Position = UDim2.fromOffset(0, goatLogo.Visible and 35 or 0)
+                goatCustomText.TextXAlignment = Enum.TextXAlignment.Right
+                goatBackgroundList.HorizontalAlignment = Enum.HorizontalAlignment.Right
+                goatBackground.Position = goatText.Position + UDim2.fromOffset(-56, 2 + 23)
             else
-                VapeText.TextXAlignment = Enum.TextXAlignment.Left
-                VapeTextExtra.TextXAlignment = Enum.TextXAlignment.Left
-                VapeTextExtra.Position = UDim2.fromOffset(5, 1)
-                VapeLogo.Position = UDim2.fromOffset(2, 8)
-                VapeText.Position = UDim2.fromOffset(6, (VapeLogo.Visible and (TextGUIBackgroundToggle.Enabled and 41 or 35) or 5) + (VapeCustomText.Visible and 25 or 0) - 23)
-				VapeCustomText.Position = UDim2.fromOffset(0, VapeLogo.Visible and 35 or 0)
-				VapeCustomText.TextXAlignment = Enum.TextXAlignment.Left
-                VapeBackgroundList.HorizontalAlignment = Enum.HorizontalAlignment.Left
-                VapeBackground.Position = VapeText.Position + UDim2.fromOffset(-1, 2 + 23)
+                goatText.TextXAlignment = Enum.TextXAlignment.Left
+                goatTextExtra.TextXAlignment = Enum.TextXAlignment.Left
+                goatTextExtra.Position = UDim2.fromOffset(5, 1)
+                goatLogo.Position = UDim2.fromOffset(2, 8)
+                goatText.Position = UDim2.fromOffset(6, (goatLogo.Visible and (TextGUIBackgroundToggle.Enabled and 41 or 35) or 5) + (goatCustomText.Visible and 25 or 0) - 23)
+				goatCustomText.Position = UDim2.fromOffset(0, goatLogo.Visible and 35 or 0)
+				goatCustomText.TextXAlignment = Enum.TextXAlignment.Left
+                goatBackgroundList.HorizontalAlignment = Enum.HorizontalAlignment.Left
+                goatBackground.Position = goatText.Position + UDim2.fromOffset(-1, 2 + 23)
             end
         end
         
@@ -919,28 +919,28 @@ local function TextGUIUpdate()
 			for i,v in pairs(backgroundList) do 
 				local textdraw = Drawing.new("Text")
 				textdraw.Text = v
-				textdraw.Size = 23 * VapeScale.Scale
+				textdraw.Size = 23 * goatScale.Scale
 				textdraw.ZIndex = 2
-				textdraw.Position = VapeText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6)
+				textdraw.Position = goatText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6)
 				textdraw.Visible = true
 				local textdraw2 = Drawing.new("Text")
 				textdraw2.Text = textdraw.Text
-				textdraw2.Size = 23 * VapeScale.Scale
+				textdraw2.Size = 23 * goatScale.Scale
 				textdraw2.Position = textdraw.Position + Vector2.new(1, 1)
 				textdraw2.Color = Color3.new()
 				textdraw2.Transparency = 0.5
-				textdraw2.Visible = VapeTextExtra.Visible
+				textdraw2.Visible = goatTextExtra.Visible
 				table.insert(TextGUIObjects.Labels, textdraw)
 				table.insert(TextGUIObjects.ShadowLabels, textdraw2)
 			end
 		end
 
-        for i,v in pairs(VapeBackground:GetChildren()) do
-			table.clear(VapeBackgroundTable)
+        for i,v in pairs(goatBackground:GetChildren()) do
+			table.clear(goatBackgroundTable)
             if v:IsA("Frame") then v:Destroy() end
         end
         for i,v in pairs(backgroundList) do
-            local textsize = textService:GetTextSize(v, VapeText.TextSize, VapeText.Font, Vector2.new(1000000, 1000000))
+            local textsize = textService:GetTextSize(v, goatText.TextSize, goatText.Font, Vector2.new(1000000, 1000000))
             local backgroundFrame = Instance.new("Frame")
             backgroundFrame.BorderSizePixel = 0
             backgroundFrame.BackgroundTransparency = 0.62
@@ -949,10 +949,10 @@ local function TextGUIUpdate()
             backgroundFrame.ZIndex = 0
             backgroundFrame.LayoutOrder = i
             backgroundFrame.Size = UDim2.fromOffset(textsize.X + 8, textsize.Y)
-            backgroundFrame.Parent = VapeBackground
+            backgroundFrame.Parent = goatBackground
             local backgroundLineFrame = Instance.new("Frame")
             backgroundLineFrame.Size = UDim2.new(0, 2, 1, 0)
-            backgroundLineFrame.Position = (VapeBackgroundList.HorizontalAlignment == Enum.HorizontalAlignment.Left and UDim2.new() or UDim2.new(1, -2, 0, 0))
+            backgroundLineFrame.Position = (goatBackgroundList.HorizontalAlignment == Enum.HorizontalAlignment.Left and UDim2.new() or UDim2.new(1, -2, 0, 0))
             backgroundLineFrame.BorderSizePixel = 0
             backgroundLineFrame.Name = "ColorFrame"
             backgroundLineFrame.Parent = backgroundFrame
@@ -964,7 +964,7 @@ local function TextGUIUpdate()
             backgroundLineExtra.Size = UDim2.new(1, 0, 0, 2)
             backgroundLineExtra.Position = UDim2.new(0, 0, 1, -1)
             backgroundLineExtra.Parent = backgroundFrame
-			table.insert(VapeBackgroundTable, backgroundFrame)
+			table.insert(goatBackgroundTable, backgroundFrame)
         end
 		
 		GuiLibrary.UpdateUI(GUIColorSlider.Hue, GUIColorSlider.Sat, GUIColorSlider.Value)
@@ -973,17 +973,17 @@ end
 
 TextGUI.GetCustomChildren().Parent:GetPropertyChangedSignal("Position"):Connect(TextGUIUpdate)
 GuiLibrary.UpdateHudEvent.Event:Connect(TextGUIUpdate)
-VapeScale:GetPropertyChangedSignal("Scale"):Connect(function()
+goatScale:GetPropertyChangedSignal("Scale"):Connect(function()
 	local childrenobj = TextGUI.GetCustomChildren()
 	local check = (childrenobj.Parent.Position.X.Offset + childrenobj.Parent.Size.X.Offset / 2) >= (gameCamera.ViewportSize.X / 2)
-	childrenobj.Position = UDim2.new((check and -(VapeScale.Scale - 1) or 0), (check and 0 or -6 * (VapeScale.Scale - 1)), 1, -6 * (VapeScale.Scale - 1))
+	childrenobj.Position = UDim2.new((check and -(goatScale.Scale - 1) or 0), (check and 0 or -6 * (goatScale.Scale - 1)), 1, -6 * (goatScale.Scale - 1))
 	TextGUIUpdate()
 end)
 TextGUIMode = TextGUI.CreateDropdown({
 	Name = "Mode",
 	List = {"Normal", "Drawing"},
 	Function = function(val)
-		VapeLogoFrame.Visible = val == "Normal"
+		goatLogoFrame.Visible = val == "Normal"
 		for i,v in pairs(TextGUIConnections) do 
 			v:Disconnect()
 		end
@@ -995,117 +995,117 @@ TextGUIMode = TextGUI.CreateDropdown({
 			end
 		end
 		if val == "Drawing" then
-			local VapeLogoDrawing = Drawing.new("Image")
-			VapeLogoDrawing.Data = readfile("vape/assets/VapeLogo3.png")
-			VapeLogoDrawing.Size = VapeLogo.AbsoluteSize
-			VapeLogoDrawing.Position = VapeLogo.AbsolutePosition + Vector2.new(0, 36)
-			VapeLogoDrawing.ZIndex = 2
-			VapeLogoDrawing.Visible = VapeLogo.Visible
-			local VapeLogoV4Drawing = Drawing.new("Image")
-			VapeLogoV4Drawing.Data = readfile("vape/assets/VapeLogo4.png")
-			VapeLogoV4Drawing.Size = VapeLogoV4.AbsoluteSize
-			VapeLogoV4Drawing.Position = VapeLogoV4.AbsolutePosition + Vector2.new(0, 36)
-			VapeLogoV4Drawing.ZIndex = 2
-			VapeLogoV4Drawing.Visible = VapeLogo.Visible
-			local VapeLogoShadowDrawing = Drawing.new("Image")
-			VapeLogoShadowDrawing.Data = readfile("vape/assets/VapeLogo3.png")
-			VapeLogoShadowDrawing.Size = VapeLogo.AbsoluteSize
-			VapeLogoShadowDrawing.Position = VapeLogo.AbsolutePosition + Vector2.new(1, 37)
-			VapeLogoShadowDrawing.Transparency = 0.5
-			VapeLogoShadowDrawing.Visible = VapeLogo.Visible and VapeLogoShadow.Visible
-			local VapeLogo4Drawing = Drawing.new("Image")
-			VapeLogo4Drawing.Data = readfile("vape/assets/VapeLogo4.png")
-			VapeLogo4Drawing.Size = VapeLogoV4.AbsoluteSize
-			VapeLogo4Drawing.Position = VapeLogoV4.AbsolutePosition + Vector2.new(1, 37)
-			VapeLogo4Drawing.Transparency = 0.5
-			VapeLogo4Drawing.Visible = VapeLogo.Visible and VapeLogoShadow.Visible
-			local VapeCustomDrawingText = Drawing.new("Text")
-			VapeCustomDrawingText.Size = 30
-			VapeCustomDrawingText.Text = VapeCustomText.Text
-			VapeCustomDrawingText.Color = VapeCustomText.TextColor3
-			VapeCustomDrawingText.ZIndex = 2
-			VapeCustomDrawingText.Position = VapeCustomText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeCustomText.AbsoluteSize.X - VapeCustomDrawingText.TextBounds.X), 32)
-			VapeCustomDrawingText.Visible = VapeCustomText.Visible
-			local VapeCustomDrawingShadow = Drawing.new("Text")
-			VapeCustomDrawingShadow.Size = 30
-			VapeCustomDrawingShadow.Text = VapeCustomText.Text
-			VapeCustomDrawingShadow.Transparency = 0.5
-			VapeCustomDrawingShadow.Color = Color3.new()
-			VapeCustomDrawingShadow.Position = VapeCustomDrawingText.Position + Vector2.new(1, 1)
-			VapeCustomDrawingShadow.Visible = VapeCustomText.Visible and VapeTextExtra.Visible
+			local goatLogoDrawing = Drawing.new("Image")
+			goatLogoDrawing.Data = readfile("goat/assets/goatLogo3.png")
+			goatLogoDrawing.Size = goatLogo.AbsoluteSize
+			goatLogoDrawing.Position = goatLogo.AbsolutePosition + Vector2.new(0, 36)
+			goatLogoDrawing.ZIndex = 2
+			goatLogoDrawing.Visible = goatLogo.Visible
+			local goatLogoV4Drawing = Drawing.new("Image")
+			goatLogoV4Drawing.Data = readfile("goat/assets/goatLogo4.png")
+			goatLogoV4Drawing.Size = goatLogoV4.AbsoluteSize
+			goatLogoV4Drawing.Position = goatLogoV4.AbsolutePosition + Vector2.new(0, 36)
+			goatLogoV4Drawing.ZIndex = 2
+			goatLogoV4Drawing.Visible = goatLogo.Visible
+			local goatLogoShadowDrawing = Drawing.new("Image")
+			goatLogoShadowDrawing.Data = readfile("goat/assets/goatLogo3.png")
+			goatLogoShadowDrawing.Size = goatLogo.AbsoluteSize
+			goatLogoShadowDrawing.Position = goatLogo.AbsolutePosition + Vector2.new(1, 37)
+			goatLogoShadowDrawing.Transparency = 0.5
+			goatLogoShadowDrawing.Visible = goatLogo.Visible and goatLogoShadow.Visible
+			local goatLogo4Drawing = Drawing.new("Image")
+			goatLogo4Drawing.Data = readfile("goat/assets/goatLogo4.png")
+			goatLogo4Drawing.Size = goatLogoV4.AbsoluteSize
+			goatLogo4Drawing.Position = goatLogoV4.AbsolutePosition + Vector2.new(1, 37)
+			goatLogo4Drawing.Transparency = 0.5
+			goatLogo4Drawing.Visible = goatLogo.Visible and goatLogoShadow.Visible
+			local goatCustomDrawingText = Drawing.new("Text")
+			goatCustomDrawingText.Size = 30
+			goatCustomDrawingText.Text = goatCustomText.Text
+			goatCustomDrawingText.Color = goatCustomText.TextColor3
+			goatCustomDrawingText.ZIndex = 2
+			goatCustomDrawingText.Position = goatCustomText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatCustomText.AbsoluteSize.X - goatCustomDrawingText.TextBounds.X), 32)
+			goatCustomDrawingText.Visible = goatCustomText.Visible
+			local goatCustomDrawingShadow = Drawing.new("Text")
+			goatCustomDrawingShadow.Size = 30
+			goatCustomDrawingShadow.Text = goatCustomText.Text
+			goatCustomDrawingShadow.Transparency = 0.5
+			goatCustomDrawingShadow.Color = Color3.new()
+			goatCustomDrawingShadow.Position = goatCustomDrawingText.Position + Vector2.new(1, 1)
+			goatCustomDrawingShadow.Visible = goatCustomText.Visible and goatTextExtra.Visible
 			pcall(function()
-				VapeLogoShadowDrawing.Color = Color3.new()
-				VapeLogo4Drawing.Color = Color3.new()
-				VapeLogoDrawing.Color = VapeLogoGradient.Color.Keypoints[1].Value
+				goatLogoShadowDrawing.Color = Color3.new()
+				goatLogo4Drawing.Color = Color3.new()
+				goatLogoDrawing.Color = goatLogoGradient.Color.Keypoints[1].Value
 			end)
-			table.insert(TextGUIObjects.Logo, VapeLogoDrawing)
-			table.insert(TextGUIObjects.Logo, VapeLogoV4Drawing)
-			table.insert(TextGUIObjects.Logo, VapeLogoShadowDrawing)
-			table.insert(TextGUIObjects.Logo, VapeLogo4Drawing)
-			table.insert(TextGUIObjects.Logo, VapeCustomDrawingText)
-			table.insert(TextGUIObjects.Logo, VapeCustomDrawingShadow)
-			table.insert(TextGUIConnections, VapeLogo:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-				VapeLogoDrawing.Position = VapeLogo.AbsolutePosition + Vector2.new(0, 36)
-				VapeLogoShadowDrawing.Position = VapeLogo.AbsolutePosition + Vector2.new(1, 37)
+			table.insert(TextGUIObjects.Logo, goatLogoDrawing)
+			table.insert(TextGUIObjects.Logo, goatLogoV4Drawing)
+			table.insert(TextGUIObjects.Logo, goatLogoShadowDrawing)
+			table.insert(TextGUIObjects.Logo, goatLogo4Drawing)
+			table.insert(TextGUIObjects.Logo, goatCustomDrawingText)
+			table.insert(TextGUIObjects.Logo, goatCustomDrawingShadow)
+			table.insert(TextGUIConnections, goatLogo:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+				goatLogoDrawing.Position = goatLogo.AbsolutePosition + Vector2.new(0, 36)
+				goatLogoShadowDrawing.Position = goatLogo.AbsolutePosition + Vector2.new(1, 37)
 			end))
-			table.insert(TextGUIConnections, VapeLogo:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-				VapeLogoDrawing.Size = VapeLogo.AbsoluteSize
-				VapeLogoShadowDrawing.Size = VapeLogo.AbsoluteSize
-				VapeCustomDrawingText.Size = 30 * VapeScale.Scale
-				VapeCustomDrawingShadow.Size = 30 * VapeScale.Scale
+			table.insert(TextGUIConnections, goatLogo:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+				goatLogoDrawing.Size = goatLogo.AbsoluteSize
+				goatLogoShadowDrawing.Size = goatLogo.AbsoluteSize
+				goatCustomDrawingText.Size = 30 * goatScale.Scale
+				goatCustomDrawingShadow.Size = 30 * goatScale.Scale
 			end))
-			table.insert(TextGUIConnections, VapeLogoV4:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-				VapeLogoV4Drawing.Position = VapeLogoV4.AbsolutePosition + Vector2.new(0, 36)
-				VapeLogo4Drawing.Position = VapeLogoV4.AbsolutePosition + Vector2.new(1, 37)
+			table.insert(TextGUIConnections, goatLogoV4:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+				goatLogoV4Drawing.Position = goatLogoV4.AbsolutePosition + Vector2.new(0, 36)
+				goatLogo4Drawing.Position = goatLogoV4.AbsolutePosition + Vector2.new(1, 37)
 			end))
-			table.insert(TextGUIConnections, VapeLogoV4:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-				VapeLogoV4Drawing.Size = VapeLogoV4.AbsoluteSize
-				VapeLogo4Drawing.Size = VapeLogoV4.AbsoluteSize
+			table.insert(TextGUIConnections, goatLogoV4:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+				goatLogoV4Drawing.Size = goatLogoV4.AbsoluteSize
+				goatLogo4Drawing.Size = goatLogoV4.AbsoluteSize
 			end))
-			table.insert(TextGUIConnections, VapeCustomText:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-				VapeCustomDrawingText.Position = VapeCustomText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeCustomText.AbsoluteSize.X - VapeCustomDrawingText.TextBounds.X), 32)
-				VapeCustomDrawingShadow.Position = VapeCustomDrawingText.Position + Vector2.new(1, 1)
+			table.insert(TextGUIConnections, goatCustomText:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+				goatCustomDrawingText.Position = goatCustomText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatCustomText.AbsoluteSize.X - goatCustomDrawingText.TextBounds.X), 32)
+				goatCustomDrawingShadow.Position = goatCustomDrawingText.Position + Vector2.new(1, 1)
 			end))
-			table.insert(TextGUIConnections, VapeLogoShadow:GetPropertyChangedSignal("Visible"):Connect(function()
-				VapeLogoShadowDrawing.Visible = VapeLogoShadow.Visible
-				VapeLogo4Drawing.Visible = VapeLogoShadow.Visible
+			table.insert(TextGUIConnections, goatLogoShadow:GetPropertyChangedSignal("Visible"):Connect(function()
+				goatLogoShadowDrawing.Visible = goatLogoShadow.Visible
+				goatLogo4Drawing.Visible = goatLogoShadow.Visible
 			end))
-			table.insert(TextGUIConnections, VapeTextExtra:GetPropertyChangedSignal("Visible"):Connect(function()
+			table.insert(TextGUIConnections, goatTextExtra:GetPropertyChangedSignal("Visible"):Connect(function()
 				for i,textdraw in pairs(TextGUIObjects.ShadowLabels) do 
-					textdraw.Visible = VapeTextExtra.Visible
+					textdraw.Visible = goatTextExtra.Visible
 				end
-				VapeCustomDrawingShadow.Visible = VapeCustomText.Visible and VapeTextExtra.Visible
+				goatCustomDrawingShadow.Visible = goatCustomText.Visible and goatTextExtra.Visible
 			end))
-			table.insert(TextGUIConnections, VapeLogo:GetPropertyChangedSignal("Visible"):Connect(function()
-				VapeLogoDrawing.Visible = VapeLogo.Visible
-				VapeLogoV4Drawing.Visible = VapeLogo.Visible
-				VapeLogoShadowDrawing.Visible = VapeLogo.Visible and VapeTextExtra.Visible
-				VapeLogo4Drawing.Visible = VapeLogo.Visible and VapeTextExtra.Visible
+			table.insert(TextGUIConnections, goatLogo:GetPropertyChangedSignal("Visible"):Connect(function()
+				goatLogoDrawing.Visible = goatLogo.Visible
+				goatLogoV4Drawing.Visible = goatLogo.Visible
+				goatLogoShadowDrawing.Visible = goatLogo.Visible and goatTextExtra.Visible
+				goatLogo4Drawing.Visible = goatLogo.Visible and goatTextExtra.Visible
 			end))
-			table.insert(TextGUIConnections, VapeCustomText:GetPropertyChangedSignal("Visible"):Connect(function()
-				VapeCustomDrawingText.Visible = VapeCustomText.Visible
-				VapeCustomDrawingShadow.Visible = VapeCustomText.Visible and VapeTextExtra.Visible
+			table.insert(TextGUIConnections, goatCustomText:GetPropertyChangedSignal("Visible"):Connect(function()
+				goatCustomDrawingText.Visible = goatCustomText.Visible
+				goatCustomDrawingShadow.Visible = goatCustomText.Visible and goatTextExtra.Visible
 			end))
-			table.insert(TextGUIConnections, VapeCustomText:GetPropertyChangedSignal("Text"):Connect(function()
-				VapeCustomDrawingText.Text = VapeCustomText.Text
-				VapeCustomDrawingShadow.Text = VapeCustomText.Text
-				VapeCustomDrawingText.Position = VapeCustomText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeCustomText.AbsoluteSize.X - VapeCustomDrawingText.TextBounds.X), 32)
-				VapeCustomDrawingShadow.Position = VapeCustomDrawingText.Position + Vector2.new(1, 1)
+			table.insert(TextGUIConnections, goatCustomText:GetPropertyChangedSignal("Text"):Connect(function()
+				goatCustomDrawingText.Text = goatCustomText.Text
+				goatCustomDrawingShadow.Text = goatCustomText.Text
+				goatCustomDrawingText.Position = goatCustomText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatCustomText.AbsoluteSize.X - goatCustomDrawingText.TextBounds.X), 32)
+				goatCustomDrawingShadow.Position = goatCustomDrawingText.Position + Vector2.new(1, 1)
 			end))
-			table.insert(TextGUIConnections, VapeCustomText:GetPropertyChangedSignal("TextColor3"):Connect(function()
-				VapeCustomDrawingText.Color = VapeCustomText.TextColor3
+			table.insert(TextGUIConnections, goatCustomText:GetPropertyChangedSignal("TextColor3"):Connect(function()
+				goatCustomDrawingText.Color = goatCustomText.TextColor3
 			end))
-			table.insert(TextGUIConnections, VapeText:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+			table.insert(TextGUIConnections, goatText:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
 				for i,textdraw in pairs(TextGUIObjects.Labels) do 
-					textdraw.Position = VapeText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6)
+					textdraw.Position = goatText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6)
 				end
 				for i,textdraw in pairs(TextGUIObjects.ShadowLabels) do 
-					textdraw.Position = Vector2.new(1, 1) + (VapeText.AbsolutePosition + Vector2.new(VapeText.TextXAlignment == Enum.TextXAlignment.Right and (VapeText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6))
+					textdraw.Position = Vector2.new(1, 1) + (goatText.AbsolutePosition + Vector2.new(goatText.TextXAlignment == Enum.TextXAlignment.Right and (goatText.AbsoluteSize.X - textdraw.TextBounds.X), ((textdraw.Size - 3) * i) + 6))
 				end
 			end))
-			table.insert(TextGUIConnections, VapeLogoGradient:GetPropertyChangedSignal("Color"):Connect(function()
+			table.insert(TextGUIConnections, goatLogoGradient:GetPropertyChangedSignal("Color"):Connect(function()
 				pcall(function()
-					VapeLogoDrawing.Color = VapeLogoGradient.Color.Keypoints[1].Value
+					goatLogoDrawing.Color = goatLogoGradient.Color.Keypoints[1].Value
 				end)
 			end))
 		end
@@ -1132,8 +1132,8 @@ TextGUI.CreateDropdown({
 	Name = "Font",
 	List = TextGUIFonts,
 	Function = function(val)
-		VapeText.Font = Enum.Font[val]
-		VapeTextExtra.Font = Enum.Font[val]
+		goatText.Font = Enum.Font[val]
+		goatTextExtra.Font = Enum.Font[val]
 		GuiLibrary.UpdateHudEvent:Fire()
 	end
 })
@@ -1141,8 +1141,8 @@ TextGUI.CreateDropdown({
 	Name = "CustomTextFont",
 	List = TextGUIFonts2,
 	Function = function(val)
-		VapeText.Font = Enum.Font[val]
-		VapeTextExtra.Font = Enum.Font[val]
+		goatText.Font = Enum.Font[val]
+		goatTextExtra.Font = Enum.Font[val]
 		GuiLibrary.UpdateHudEvent:Fire()
 	end
 })
@@ -1152,29 +1152,29 @@ TextGUI.CreateSlider({
 	Max = 50,
 	Default = 10,
 	Function = function(val)
-		VapeScale.Scale = val / 10
+		goatScale.Scale = val / 10
 	end
 })
 TextGUI.CreateToggle({
 	Name = "Shadow", 
 	Function = function(callback) 
-        VapeTextExtra.Visible = callback 
-        VapeLogoShadow.Visible = callback 
+        goatTextExtra.Visible = callback 
+        goatLogoShadow.Visible = callback 
     end,
 	HoverText = "Renders shadowed text."
 })
 TextGUI.CreateToggle({
 	Name = "Watermark", 
 	Function = function(callback) 
-		VapeLogo.Visible = callback
+		goatLogo.Visible = callback
 		GuiLibrary.UpdateHudEvent:Fire()
 	end,
-	HoverText = "Renders a vape watermark"
+	HoverText = "Renders a goat watermark"
 })
 TextGUIBackgroundToggle = TextGUI.CreateToggle({
 	Name = "Render background", 
 	Function = function(callback)
-		VapeBackground.Visible = callback
+		goatBackground.Visible = callback
 		GuiLibrary.UpdateHudEvent:Fire()
 	end
 })
@@ -1210,7 +1210,7 @@ local CustomText = {Value = "", Object = nil}
 TextGUI.CreateToggle({
 	Name = "Add custom text", 
 	Function = function(callback) 
-		VapeCustomText.Visible = callback
+		goatCustomText.Visible = callback
 		CustomText.Object.Visible = callback
 		GuiLibrary.UpdateHudEvent:Fire()
 	end,
@@ -1219,14 +1219,14 @@ TextGUI.CreateToggle({
 CustomText = TextGUI.CreateTextBox({
 	Name = "Custom text",
 	FocusLost = function(enter)
-		VapeCustomText.Text = CustomText.Value
-		VapeCustomTextShadow.Text = CustomText.Value
+		goatCustomText.Text = CustomText.Value
+		goatCustomTextShadow.Text = CustomText.Value
 	end
 })
 CustomText.Object.Visible = false
 local TargetInfo = GuiLibrary.CreateCustomWindow({
 	Name = "Target Info",
-	Icon = "vape/assets/TargetInfoIcon1.png",
+	Icon = "goat/assets/TargetInfoIcon1.png",
 	IconSize = 16
 })
 local TargetInfoDisplayNames = TargetInfo.CreateToggle({
@@ -1281,7 +1281,7 @@ TargetInfoHealthBackground.Parent = TargetInfoMainInfo
 local TargetInfoHealthBackgroundShadow = Instance.new("ImageLabel")
 TargetInfoHealthBackgroundShadow.AnchorPoint = Vector2.new(0.5, 0.5)
 TargetInfoHealthBackgroundShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-TargetInfoHealthBackgroundShadow.Image = downloadVapeAsset("vape/assets/WindowBlur.png")
+TargetInfoHealthBackgroundShadow.Image = downloadgoatAsset("goat/assets/WindowBlur.png")
 TargetInfoHealthBackgroundShadow.BackgroundTransparency = 1
 TargetInfoHealthBackgroundShadow.ImageTransparency = 0.6
 TargetInfoHealthBackgroundShadow.ZIndex = -1
@@ -1339,11 +1339,11 @@ local TargetInfoHealthTween
 TargetInfo.GetCustomChildren().Parent:GetPropertyChangedSignal("Size"):Connect(function()
 	TargetInfoMainInfo.Position = UDim2.fromOffset(0, TargetInfo.GetCustomChildren().Parent.Size ~= UDim2.fromOffset(220, 0) and -5 or 40)
 end)
-shared.VapeTargetInfo = {
+shared.goatTargetInfo = {
 	UpdateInfo = function(tab, targetsize) 
 		if TargetInfo.GetCustomChildren().Parent then
 			local hasTarget = false
-			for _, v in pairs(shared.VapeTargetInfo.Targets) do
+			for _, v in pairs(shared.goatTargetInfo.Targets) do
 				hasTarget = true
 				TargetInfoImage.Image = 'rbxthumb://type=AvatarHeadShot&id='..v.Player.UserId..'&w=420&h=420'
 				TargetInfoHealth:TweenSize(UDim2.new(math.clamp(v.Humanoid.Health / v.Humanoid.MaxHealth, 0, 1), 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
@@ -1362,13 +1362,13 @@ shared.VapeTargetInfo = {
 }
 task.spawn(function()
 	repeat
-		shared.VapeTargetInfo.UpdateInfo()
+		shared.goatTargetInfo.UpdateInfo()
 		task.wait()
-	until not vapeInjected
+	until not goatInjected
 end)
 GUI.CreateCustomToggle({
 	Name = "Target Info", 
-	Icon = "vape/assets/TargetInfoIcon2.png", 
+	Icon = "goat/assets/TargetInfoIcon2.png", 
 	Function = function(callback) TargetInfo.SetVisible(callback) end,
 	Priority = 1
 })
@@ -1390,7 +1390,7 @@ ModuleSettings.CreateToggle({
 		if callback then
 			MiddleClickInput = game:GetService("UserInputService").InputBegan:Connect(function(input1)
 				if input1.UserInputType == Enum.UserInputType.MouseButton3 then
-					local entityLibrary = shared.vapeentity
+					local entityLibrary = shared.goatentity
 					if entityLibrary then 
 						local rayparams = RaycastParams.new()
 						rayparams.FilterType = Enum.RaycastFilterType.Whitelist
@@ -1453,7 +1453,7 @@ local windowSortOrder = {
 }
 local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World"}
 
-local function getVapeSaturation(val)
+local function getgoatSaturation(val)
 	local sat = 0.9
 	if val < 0.03 then 
 		sat = 0.75 + (0.15 * math.clamp(val / 0.03, 0, 1))
@@ -1473,19 +1473,19 @@ end
 GuiLibrary.UpdateUI = function(h, s, val, bypass)
 	pcall(function()
 		local rainbowGUICheck = GUIColorSlider.RainbowValue
-		local mainRainbowSaturation = rainbowGUICheck and getVapeSaturation(h) or s
+		local mainRainbowSaturation = rainbowGUICheck and getgoatSaturation(h) or s
 		local mainRainbowGradient = h + (rainbowGUICheck and (-0.05) or 0)
 		mainRainbowGradient = mainRainbowGradient % 1
-        local mainRainbowGradientSaturation = TextGUIGradient.Enabled and getVapeSaturation(mainRainbowGradient) or mainRainbowSaturation
+        local mainRainbowGradientSaturation = TextGUIGradient.Enabled and getgoatSaturation(mainRainbowGradient) or mainRainbowSaturation
 
 		GuiLibrary.ObjectsThatCanBeSaved.GUIWindow.Object.Logo1.Logo2.ImageColor3 = Color3.fromHSV(h, mainRainbowSaturation, rainbowGUICheck and 1 or val)
-		VapeText.TextColor3 = Color3.fromHSV(TextGUIGradient.Enabled and mainRainbowGradient or h, mainRainbowSaturation, rainbowGUICheck and 1 or val)
-		VapeCustomText.TextColor3 = VapeText.TextColor3
-		VapeLogoGradient.Color = ColorSequence.new({
+		goatText.TextColor3 = Color3.fromHSV(TextGUIGradient.Enabled and mainRainbowGradient or h, mainRainbowSaturation, rainbowGUICheck and 1 or val)
+		goatCustomText.TextColor3 = goatText.TextColor3
+		goatLogoGradient.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromHSV(h, mainRainbowSaturation, rainbowGUICheck and 1 or val)),
-			ColorSequenceKeypoint.new(1, VapeText.TextColor3)
+			ColorSequenceKeypoint.new(1, goatText.TextColor3)
 		})
-		VapeLogoGradient2.Color = ColorSequence.new({
+		goatLogoGradient2.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromHSV(h, TextGUIGradient.Enabled and rainbowGUICheck and mainRainbowSaturation or 0, 1)),
 			ColorSequenceKeypoint.new(1, Color3.fromHSV(TextGUIGradient.Enabled and mainRainbowGradient or h, TextGUIGradient.Enabled and rainbowGUICheck and mainRainbowSaturation or 0, 1))
 		})
@@ -1495,7 +1495,7 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 		for i, v in pairs(TextGUIFormatted) do
 			local rainbowcolor = h + (rainbowGUICheck and (-0.025 * (i + (TextGUIGradient.Enabled and 2 or 0))) or 0)
 			rainbowcolor = rainbowcolor % 1
-			local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getVapeSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
+			local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getgoatSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
 			newTextGUIText = newTextGUIText..'<font color="rgb('..math.floor(newcolor.R * 255)..","..math.floor(newcolor.G * 255)..","..math.floor(newcolor.B * 255)..')">'..v.Text..'</font><font color="rgb(170, 170, 170)">'..v.ExtraText..'</font>\n'
 			backgroundTable[i] = newcolor
 		end
@@ -1509,11 +1509,11 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 		end
 
 		if TextGUIBackgroundToggle.Enabled then
-			for i, v in pairs(VapeBackgroundTable) do
+			for i, v in pairs(goatBackgroundTable) do
 				v.ColorFrame.BackgroundColor3 = backgroundTable[v.LayoutOrder] or Color3.new()
 			end
 		end
-		VapeText.Text = newTextGUIText
+		goatText.Text = newTextGUIText
 
 		if (not GuiLibrary.MainGui.ScaledGui.ClickGui.Visible) and (not bypass) then return end
 		local buttonColorIndex = 0
@@ -1534,7 +1534,7 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 				buttonColorIndex = buttonColorIndex + 1
 				local rainbowcolor = h + (rainbowGUICheck and (-0.025 * windowSortOrder[i]) or 0)
 				rainbowcolor = rainbowcolor % 1
-				local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getVapeSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
+				local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getgoatSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
 				v.Object.ButtonText.TextColor3 = newcolor
 				if v.Object:FindFirstChild("ButtonIcon") then
 					v.Object.ButtonIcon.ImageColor3 = newcolor
@@ -1547,7 +1547,7 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 						mainRainbowGradient = mainRainbowGradient and (mainRainbowGradient - 1) > 0 and GuiLibrary.ObjectsThatCanBeSaved[windowSortOrder2[mainRainbowGradient - 1].."Window"].SortOrder or 0
 						local rainbowcolor = h + (rainbowGUICheck and (-0.025 * (mainRainbowGradient + v.SortOrder)) or 0)
 						rainbowcolor = rainbowcolor % 1
-						newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getVapeSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
+						newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getgoatSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
 					end
 					v.Object.BackgroundColor3 = newcolor
 				end
@@ -1555,7 +1555,7 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 				if v.Api.Enabled then
 					local rainbowcolor = h + (rainbowGUICheck and (-0.025 * buttonColorIndex) or 0)
 					rainbowcolor = rainbowcolor % 1
-					local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getVapeSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
+					local newcolor = Color3.fromHSV(rainbowcolor, rainbowGUICheck and getgoatSaturation(rainbowcolor) or mainRainbowSaturation, rainbowGUICheck and 1 or val)
 					v.Object.ImageColor3 = newcolor
 				end
 			elseif (v.Type == "Toggle" or v.Type == "ToggleMain") and v.Api.Enabled then
@@ -1572,7 +1572,7 @@ GuiLibrary.UpdateUI = function(h, s, val, bypass)
 
 		local rainbowcolor = h + (rainbowGUICheck and (-0.025 * buttonColorIndex) or 0)
 		rainbowcolor = rainbowcolor % 1
-		GuiLibrary.ObjectsThatCanBeSaved.GUIWindow.Object.Children.Extras.MainButton.ImageColor3 = (GUI.GetVisibleIcons() > 0 and Color3.fromHSV(rainbowcolor, getVapeSaturation(rainbowcolor), 1) or Color3.fromRGB(199, 199, 199))
+		GuiLibrary.ObjectsThatCanBeSaved.GUIWindow.Object.Children.Extras.MainButton.ImageColor3 = (GUI.GetVisibleIcons() > 0 and Color3.fromHSV(rainbowcolor, getgoatSaturation(rainbowcolor), 1) or Color3.fromRGB(199, 199, 199))
 
 		for i, v in pairs(ProfilesTextList.ScrollingObject.ScrollingFrame:GetChildren()) do
 			if v:IsA("TextButton") and v.ItemText.Text == GuiLibrary.CurrentProfile then
@@ -1658,24 +1658,24 @@ GUISettings.CreateSlider({
 
 local GUIbind = GUI.CreateGUIBind()
 local teleportConnection = playersService.LocalPlayer.OnTeleport:Connect(function(State)
-    if (not teleportedServers) and (not shared.VapeIndependent) then
+    if (not teleportedServers) and (not shared.goatIndependent) then
 		teleportedServers = true
 		local teleportScript = [[
-			shared.VapeSwitchServers = true 
-			if shared.VapeDeveloper then 
-				loadstring(readfile("vape/NewMainScript.lua"))() 
+			shared.goatSwitchServers = true 
+			if shared.goatDeveloper then 
+				loadstring(readfile("goat/NewMainScript.lua"))() 
 			else 
-				loadstring(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/NewMainScript.lua", true))() 
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/NewMainScript.lua", true))() 
 			end
 		]]
-		if shared.VapeDeveloper then
-			teleportScript = 'shared.VapeDeveloper = true\n'..teleportScript
+		if shared.goatDeveloper then
+			teleportScript = 'shared.goatDeveloper = true\n'..teleportScript
 		end
-		if shared.VapePrivate then
-			teleportScript = 'shared.VapePrivate = true\n'..teleportScript
+		if shared.goatPrivate then
+			teleportScript = 'shared.goatPrivate = true\n'..teleportScript
 		end
-		if shared.VapeCustomProfile then 
-			teleportScript = "shared.VapeCustomProfile = '"..shared.VapeCustomProfile.."'\n"..teleportScript
+		if shared.goatCustomProfile then 
+			teleportScript = "shared.goatCustomProfile = '"..shared.goatCustomProfile.."'\n"..teleportScript
 		end
 		GuiLibrary.SaveSettings()
 		queueonteleport(teleportScript)
@@ -1687,10 +1687,10 @@ GuiLibrary.SelfDestruct = function()
 		coroutine.close(saveSettingsLoop)
 	end)
 
-	if vapeInjected then 
+	if goatInjected then 
 		GuiLibrary.SaveSettings()
 	end
-	vapeInjected = false
+	goatInjected = false
 	game:GetService("UserInputService").OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.None
 
 	for i,v in pairs(GuiLibrary.ObjectsThatCanBeSaved) do
@@ -1711,14 +1711,14 @@ GuiLibrary.SelfDestruct = function()
 	end
 
 	GuiLibrary.SelfDestructEvent:Fire()
-	shared.VapeExecuted = nil
-	shared.VapePrivate = nil
-	shared.VapeFullyLoaded = nil
-	shared.VapeSwitchServers = nil
+	shared.goatExecuted = nil
+	shared.goatPrivate = nil
+	shared.goatFullyLoaded = nil
+	shared.goatSwitchServers = nil
 	shared.GuiLibrary = nil
-	shared.VapeIndependent = nil
-	shared.VapeManualLoad = nil
-	shared.CustomSaveVape = nil
+	shared.goatIndependent = nil
+	shared.goatManualLoad = nil
+	shared.CustomSavegoat = nil
 	GuiLibrary.KeyInputHandler:Disconnect()
 	GuiLibrary.KeyInputHandler2:Disconnect()
 	if MiddleClickInput then
@@ -1732,17 +1732,17 @@ end
 GeneralSettings.CreateButton2({
 	Name = "RESET CURRENT PROFILE", 
 	Function = function()
-		local vapePrivateCheck = shared.VapePrivate
+		local goatPrivateCheck = shared.goatPrivate
 		GuiLibrary.SelfDestruct()
 		if delfile then
-			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt")
+			delfile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSavegoat or game.PlaceId)..".goatprofile.txt")
 		else
-			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSaveVape or game.PlaceId)..".vapeprofile.txt", "")
+			writefile(baseDirectory.."Profiles/"..(GuiLibrary.CurrentProfile ~= "default" and GuiLibrary.CurrentProfile or "")..(shared.CustomSavegoat or game.PlaceId)..".goatprofile.txt", "")
 		end
-		shared.VapeSwitchServers = true
-		shared.VapeOpenGui = true
-		shared.VapePrivate = vapePrivateCheck
-		loadstring(vapeGithubRequest("NewMainScript.lua"))()
+		shared.goatSwitchServers = true
+		shared.goatOpenGui = true
+		shared.goatPrivate = goatPrivateCheck
+		loadstring(goatGithubRequest("NewMainScript.lua"))()
 	end
 })
 GUISettings.CreateButton2({
@@ -1806,31 +1806,31 @@ GeneralSettings.CreateButton2({
 	Function = GuiLibrary.SelfDestruct
 })
 
-local function loadVape()
-	if not shared.VapeIndependent then
-		loadstring(vapeGithubRequest("Universal.lua"))()
-		if isfile("vape/CustomModules/"..game.PlaceId..".lua") then
-			loadstring(readfile("vape/CustomModules/"..game.PlaceId..".lua"))()
+local function loadgoat()
+	if not shared.goatIndependent then
+		loadstring(goatGithubRequest("Universal.lua"))()
+		if isfile("goat/CustomModules/"..game.PlaceId..".lua") then
+			loadstring(readfile("goat/CustomModules/"..game.PlaceId..".lua"))()
 		else
-			local suc, publicrepo = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/CustomModules/"..game.PlaceId..".lua") end)
+			local suc, publicrepo = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/CustomModules/"..game.PlaceId..".lua") end)
 			if suc and publicrepo and publicrepo ~= "404: Not Found" then
-				writefile("vape/CustomModules/"..game.PlaceId..".lua", "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..publicrepo)
-				loadstring(readfile("vape/CustomModules/"..game.PlaceId..".lua"))()
+				writefile("goat/CustomModules/"..game.PlaceId..".lua", "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..publicrepo)
+				loadstring(readfile("goat/CustomModules/"..game.PlaceId..".lua"))()
 			end
 		end
-		if shared.VapePrivate then
-			if isfile("vapeprivate/CustomModules/"..game.PlaceId..".lua") then
-				loadstring(readfile("vapeprivate/CustomModules/"..game.PlaceId..".lua"))()
+		if shared.goatPrivate then
+			if isfile("goatprivate/CustomModules/"..game.PlaceId..".lua") then
+				loadstring(readfile("goatprivate/CustomModules/"..game.PlaceId..".lua"))()
 			end	
 		end
 	else
-		repeat task.wait() until shared.VapeManualLoad
+		repeat task.wait() until shared.goatManualLoad
 	end
 	if #ProfilesTextList.ObjectList == 0 then
 		table.insert(ProfilesTextList.ObjectList, "default")
 		ProfilesTextList.RefreshValues(ProfilesTextList.ObjectList)
 	end
-	GuiLibrary.LoadSettings(shared.VapeCustomProfile)
+	GuiLibrary.LoadSettings(shared.goatCustomProfile)
 	local profiles = {}
 	for i,v in pairs(GuiLibrary.Profiles) do 
 		table.insert(profiles, i)
@@ -1840,31 +1840,31 @@ local function loadVape()
 	GUIbind.Reload()
 	TextGUIUpdate()
 	GuiLibrary.UpdateUI(GUIColorSlider.Hue, GUIColorSlider.Sat, GUIColorSlider.Value, true)
-	if not shared.VapeSwitchServers then
+	if not shared.goatSwitchServers then
 		if BlatantModeToggle.Enabled then
 			pcall(function()
-				local frame = GuiLibrary.CreateNotification("Blatant Enabled", "Vape is now in Blatant Mode.", 5.5, "assets/WarningNotification.png")
+				local frame = GuiLibrary.CreateNotification("Blatant Enabled", "goat is now in Blatant Mode.", 5.5, "assets/WarningNotification.png")
 				frame.Frame.Frame.ImageColor3 = Color3.fromRGB(236, 129, 44)
 			end)
 		end
 		GuiLibrary.LoadedAnimation(welcomeMessage.Enabled)
 	else
-		shared.VapeSwitchServers = nil
+		shared.goatSwitchServers = nil
 	end
-	if shared.VapeOpenGui then
+	if shared.goatOpenGui then
 		GuiLibrary.MainGui.ScaledGui.ClickGui.Visible = true
 		game:GetService("RunService"):SetRobloxGuiFocused(GuiLibrary.MainBlur.Size ~= 0) 
-		shared.VapeOpenGui = nil
+		shared.goatOpenGui = nil
 	end
 
 	coroutine.resume(saveSettingsLoop)
-	shared.VapeFullyLoaded = true
+	shared.goatFullyLoaded = true
 end
 
-if shared.VapeIndependent then
-	task.spawn(loadVape)
-	shared.VapeFullyLoaded = true
+if shared.goatIndependent then
+	task.spawn(loadgoat)
+	shared.goatFullyLoaded = true
 	return GuiLibrary
 else
-	loadVape()
+	loadgoat()
 end

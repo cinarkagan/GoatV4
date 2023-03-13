@@ -8,11 +8,11 @@ local runService = game:GetService("RunService")
 local replicatedStorageService = game:GetService("ReplicatedStorage")
 local gameCamera = workspace.CurrentCamera
 local lplr = playersService.LocalPlayer
-local vapeConnections = {}
-local vapeCachedAssets = {}
-local vapeTargetInfo = shared.VapeTargetInfo
-local vapeInjected = true
-table.insert(vapeConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+local goatConnections = {}
+local goatCachedAssets = {}
+local goatTargetInfo = shared.goatTargetInfo
+local goatInjected = true
+table.insert(goatConnections, workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA("Camera")
 end))
 local isfile = isfile or function(file)
@@ -45,18 +45,18 @@ local worldtoviewportpoint = function(pos)
 	return gameCamera.WorldToViewportPoint(gameCamera, pos)
 end
 
-local function vapeGithubRequest(scripturl)
-	if not isfile("vape/"..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+local function goatGithubRequest(scripturl)
+	if not isfile("goat/"..scripturl) then
+		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/"..scripturl, true) end)
 		assert(suc, res)
 		assert(res ~= "404: Not Found", res)
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-		writefile("vape/"..scripturl, res)
+		writefile("goat/"..scripturl, res)
 	end
-	return readfile("vape/"..scripturl)
+	return readfile("goat/"..scripturl)
 end
 
-local function downloadVapeAsset(path)
+local function downloadgoatAsset(path)
 	if not isfile(path) then
 		task.spawn(function()
 			local textlabel = Instance.new("TextLabel")
@@ -72,15 +72,15 @@ local function downloadVapeAsset(path)
 			repeat task.wait() until isfile(path)
 			textlabel:Destroy()
 		end)
-		local suc, req = pcall(function() return vapeGithubRequest(path:gsub("vape/assets", "assets")) end)
+		local suc, req = pcall(function() return goatGithubRequest(path:gsub("goat/assets", "assets")) end)
         if suc and req then
 		    writefile(path, req)
         else
             return ""
         end
 	end
-	if not vapeCachedAssets[path] then vapeCachedAssets[path] = getcustomasset(path) end
-	return vapeCachedAssets[path] 
+	if not goatCachedAssets[path] then goatCachedAssets[path] = getcustomasset(path) end
+	return goatCachedAssets[path] 
 end
 
 local function warningNotification(title, text, delay)
@@ -123,14 +123,14 @@ local function getPlayerColor(plr)
 	return tostring(plr.TeamColor) ~= "White" and plr.TeamColor.Color
 end
 
-local entityLibrary = loadstring(vapeGithubRequest("Libraries/entityHandler.lua"))()
-shared.vapeentity = entityLibrary
+local entityLibrary = loadstring(goatGithubRequest("Libraries/entityHandler.lua"))()
+shared.goatentity = entityLibrary
 do
 	entityLibrary.selfDestruct()
-	table.insert(vapeConnections, GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.FriendRefresh.Event:Connect(function()
+	table.insert(goatConnections, GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.FriendRefresh.Event:Connect(function()
 		entityLibrary.fullEntityRefresh()
 	end))
-	table.insert(vapeConnections, GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Refresh.Event:Connect(function()
+	table.insert(goatConnections, GuiLibrary.ObjectsThatCanBeSaved["Teams by colorToggle"].Api.Refresh.Event:Connect(function()
 		entityLibrary.fullEntityRefresh()
 	end))
 	local oldUpdateBehavior = entityLibrary.getUpdateConnections
@@ -173,7 +173,7 @@ do
 				postable2[v.Player] = v.RootPart.Position
 			end
 			task.wait()
-		until not vapeInjected
+		until not goatInjected
 	end)
 end
 
@@ -277,8 +277,8 @@ local function EntityNearMouse(distance, checktab)
 end
 
 local WhitelistFunctions = {StoredHashes = {}, PriorityList = {
-	["VAPE OWNER"] = 3,
-	["VAPE PRIVATE"] = 2,
+	["goat OWNER"] = 3,
+	["goat PRIVATE"] = 2,
 	Default = 1
 }, WhitelistTable = {}, Loaded = false, CustomTags = {}}
 do
@@ -293,7 +293,7 @@ do
 		whitelistloaded = pcall(function()
 			WhitelistFunctions.WhitelistTable = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/whitelists/main/whitelist2.json", true))
 		end)
-		shalib = loadstring(vapeGithubRequest("Libraries/sha.lua"))()
+		shalib = loadstring(goatGithubRequest("Libraries/sha.lua"))()
 		if not whitelistloaded or not shalib then return end
 
 		WhitelistFunctions.Loaded = true
@@ -312,10 +312,10 @@ do
 	function WhitelistFunctions:GetTag(plr)
 		local plrstr = WhitelistFunctions:CheckPlayerType(plr)
 		local hash = WhitelistFunctions:Hash(plr.Name..plr.UserId)
-		if plrstr == "VAPE OWNER" then
-			return "[VAPE OWNER] "
-		elseif plrstr == "VAPE PRIVATE" then 
-			return "[VAPE PRIVATE] "
+		if plrstr == "goat OWNER" then
+			return "[goat OWNER] "
+		elseif plrstr == "goat PRIVATE" then 
+			return "[goat PRIVATE] "
 		elseif WhitelistFunctions.WhitelistTable.chattags[hash] then
 			local data = WhitelistFunctions.WhitelistTable.chattags[hash]
 			local newnametag = ""
@@ -342,7 +342,7 @@ do
 		local private = WhitelistFunctions:FindWhitelistTable(WhitelistFunctions.WhitelistTable.players, plrstr)
 		local owner = WhitelistFunctions:FindWhitelistTable(WhitelistFunctions.WhitelistTable.owners, plrstr)
 		local tab = owner or private
-		playertype = owner and "VAPE OWNER" or private and "VAPE PRIVATE" or "DEFAULT"
+		playertype = owner and "goat OWNER" or private and "goat PRIVATE" or "DEFAULT"
 		playerattackable = (not tab) or (not (type(tab) == "table" and tab.invulnerable or true))
 		return playertype, playerattackable
 	end
@@ -364,7 +364,7 @@ do
 		return false
 	end
 end
-shared.vapewhitelist = WhitelistFunctions
+shared.goatwhitelist = WhitelistFunctions
 
 local RunLoops = {RenderStepTable = {}, StepTable = {}, HeartTable = {}}
 do
@@ -409,9 +409,9 @@ do
 end
 
 GuiLibrary.SelfDestructEvent.Event:Connect(function()
-	vapeInjected = false
+	goatInjected = false
 	entityLibrary.selfDestruct()
-	for i, v in pairs(vapeConnections) do
+	for i, v in pairs(goatConnections) do
 		if v.Disconnect then pcall(function() v:Disconnect() end) continue end
 		if v.disconnect then pcall(function() v:disconnect() end) continue end
 	end
@@ -422,7 +422,7 @@ runFunction(function()
 	radargameCamera.FieldOfView = 45
 	local Radar = GuiLibrary.CreateCustomWindow({
 		Name = "Radar", 
-		Icon = "vape/assets/RadarIcon1.png",
+		Icon = "goat/assets/RadarIcon1.png",
 		IconSize = 16
 	})
 	local RadarColor = Radar.CreateColorSlider({
@@ -470,12 +470,12 @@ runFunction(function()
 	RadarMainFrame.Size = UDim2.new(0, 250, 0, 250)
 	RadarMainFrame.Parent = RadarFrame
 	local radartable = {}
-	table.insert(vapeConnections, Radar.GetCustomChildren().Parent:GetPropertyChangedSignal("Size"):Connect(function()
+	table.insert(goatConnections, Radar.GetCustomChildren().Parent:GetPropertyChangedSignal("Size"):Connect(function()
 		RadarFrame.Position = UDim2.new(0, 0, 0, (Radar.GetCustomChildren().Parent.Size.Y.Offset == 0 and 45 or 0))
 	end))
 	GuiLibrary.ObjectsThatCanBeSaved.GUIWindow.Api.CreateCustomToggle({
 		Name = "Radar", 
-		Icon = "vape/assets/RadarIcon2.png", 
+		Icon = "goat/assets/RadarIcon2.png", 
 		Function = function(callback)
 			Radar.SetVisible(callback) 
 			if callback then
@@ -813,7 +813,7 @@ runFunction(function()
 				SilentAimMethodUsed = "Normal"..synapsev3
 				task.spawn(function()
 					repeat
-						vapeTargetInfo.Targets.SilentAim = SlientAimShotTick >= tick() and SilentAimShot or nil
+						goatTargetInfo.Targets.SilentAim = SlientAimShotTick >= tick() and SilentAimShot or nil
 						task.wait()
 					until not SilentAim.Enabled
 				end)
@@ -827,7 +827,7 @@ runFunction(function()
 					SilentAimHooked = false
 				end
 				if SilentAimCircle then SilentAimCircle.Visible = false end
-				vapeTargetInfo.Targets.SilentAim = nil
+				goatTargetInfo.Targets.SilentAim = nil
 			end
 		end,
 		ExtraText = function() 
@@ -1669,7 +1669,7 @@ runFunction(function()
 					repeat
 						local attackedplayers = {}
 						KillauraNearTarget = false
-						vapeTargetInfo.Targets.Killaura = nil
+						goatTargetInfo.Targets.Killaura = nil
 						if entityLibrary.isAlive and (not KillauraButtonDown.Enabled or inputService:IsMouseButtonPressed(0)) then
 							local plrs = AllNearPosition(KillauraRange.Value, 100, {Prediction = KillauraPrediction.Enabled})
 							if #plrs > 0 then
@@ -1682,7 +1682,7 @@ runFunction(function()
 										if KillauraTarget.Enabled then
 											table.insert(attackedplayers, v)
 										end
-										vapeTargetInfo.Targets.Killaura = v
+										goatTargetInfo.Targets.Killaura = v
 										local playertype, playerattackable = WhitelistFunctions:CheckPlayerType(v.Player)
 										if not playerattackable then
 											continue
@@ -1729,7 +1729,7 @@ runFunction(function()
 			else
 				RunLoops:UnbindFromHeartbeat("Killaura") 
                 KillauraNearTarget = false
-				vapeTargetInfo.Targets.Killaura = nil
+				goatTargetInfo.Targets.Killaura = nil
 				for i,v in pairs(KillauraBoxes) do v.Adornee = nil end
 				if KillauraRangeCirclePart then KillauraRangeCirclePart.Parent = nil end
 			end
@@ -2412,7 +2412,7 @@ runFunction(function()
         arrowObject.AnchorPoint = Vector2.new(0.5, 0.5)
         arrowObject.Position = UDim2.new(0.5, 0, 0.5, 0)
         arrowObject.Visible = false
-        arrowObject.Image = downloadVapeAsset("vape/assets/ArrowIndicator.png")
+        arrowObject.Image = downloadgoatAsset("goat/assets/ArrowIndicator.png")
 		arrowObject.ImageColor3 = getPlayerColor(plr.Player) or Color3.fromHSV(ArrowsColor.Hue, ArrowsColor.Sat, ArrowsColor.Value)
         arrowObject.Name = plr.Player.Name
         arrowObject.Parent = ArrowsFolder
@@ -4208,7 +4208,7 @@ runFunction(function()
 				playerstate.Pop()
 			end
 		end,
-		HoverText = "Shift-P Developer Freecam-like Freecam."
+		HoverText = "Lets you fly and clip through walls freely\nwithout moving your player server-sided."
 	})
 	Freecam.CreateSlider({
 		Name = "Speed",
@@ -4306,7 +4306,7 @@ runFunction(function()
 							task.spawn(function()
 								repeat
 									pcall(function()
-										replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer((#ChatSpammerMessages.ObjectList > 0 and ChatSpammerMessages.ObjectList[math.random(1, #ChatSpammerMessages.ObjectList)] or "GoatV4"), "All")
+										replicatedStorageService.DefaultChatSystemChatEvents.SayMessageRequest:FireServer((#ChatSpammerMessages.ObjectList > 0 and ChatSpammerMessages.ObjectList[math.random(1, #ChatSpammerMessages.ObjectList)] or "vxpe on top"), "All")
 									end)
 									if waitnum ~= 0 then
 										task.wait(waitnum)
@@ -4447,17 +4447,17 @@ runFunction(function()
 		Name = "Cape",
 		Function = function(callback)
 			if callback then
-				vapecapeconnection = lplr.CharacterAdded:Connect(function(char)
+				goatcapeconnection = lplr.CharacterAdded:Connect(function(char)
 					task.spawn(function()
 						pcall(function() 
-							Cape(char, downloadVapeAsset("vape/assets/VapeCape.png"))
+							Cape(char, downloadgoatAsset("goat/assets/goatCape.png"))
 						end)
 					end)
 				end)
 				if lplr.Character then
 					task.spawn(function()
 						pcall(function() 
-							Cape(lplr.Character, downloadVapeAsset("vape/assets/VapeCape.png"))
+							Cape(lplr.Character, downloadgoatAsset("goat/assets/goatCape.png"))
 						end)
 					end)
 				end
@@ -4719,7 +4719,7 @@ runFunction(function()
 		adopted = "Bullying",
 		linlife = "Bullying",
 		commitnotalive = "Bullying",
-		vape = "Offsite Links",
+		goat = "Offsite Links",
 		futureclient = "Offsite Links",
 		download = "Offsite Links",
 		youtube = "Offsite Links",
@@ -4769,6 +4769,13 @@ runFunction(function()
 							if reportreason then 
 								if alreadyreported[plr] then return end
 								task.spawn(function()
+									if syn == nil or reportplayer then
+										if reportplayer then
+											reportplayer(plr, reportreason, "he said a bad word")
+										else
+											playersService:ReportAbuse(plr, reportreason, "he said a bad word")
+										end
+									end
 								end)
 								if AutoReportNotify.Enabled then 
 									warningNotification("AutoReport", "Reported "..plr.Name.." for "..reportreason..' ('..reportedmatch..')', 15)
@@ -4786,6 +4793,15 @@ runFunction(function()
 								local reportreason, reportedmatch = findreport(tab.Message)
 								if reportreason then 
 									if alreadyreported[plr] then return end
+									task.spawn(function()
+										if syn == nil or reportplayer then
+											if reportplayer then
+												reportplayer(plr, reportreason, "he said a bad word")
+											else
+												playersService:ReportAbuse(plr, reportreason, "he said a bad word")
+											end
+										end
+									end)
 									if AutoReportNotify.Enabled then 
 										warningNotification("AutoReport", "Reported "..plr.Name.." for "..reportreason..' ('..reportedmatch..')', 15)
 									end
@@ -4909,8 +4925,8 @@ runFunction(function()
 					end
 					if AutoLeaveMode.Value == "UnInject" then 
 						task.spawn(function()
-							if not shared.VapeFullyLoaded then
-								repeat task.wait() until shared.VapeFullyLoaded
+							if not shared.goatFullyLoaded then
+								repeat task.wait() until shared.goatFullyLoaded
 							end
 							GuiLibrary.SelfDestruct()
 						end)

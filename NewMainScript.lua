@@ -14,7 +14,7 @@ local function displayErrorPopup(text, func)
 	local prompt = ErrorPrompt.new("Default")
 	prompt._hideErrorCode = true
 	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-	prompt:setErrorTitle("Vape")
+	prompt:setErrorTitle("goat")
 	prompt:updateButtons({{
 		Text = "OK",
 		Callback = function() 
@@ -28,8 +28,8 @@ local function displayErrorPopup(text, func)
 	setidentity(oldidentity)
 end
 
-local function vapeGithubRequest(scripturl)
-	if not isfile("vape/"..scripturl) then
+local function goatGithubRequest(scripturl)
+	if not isfile("goat/"..scripturl) then
 		local suc, res
 		task.delay(15, function()
 			if not res and not errorPopupShown then 
@@ -37,18 +37,18 @@ local function vapeGithubRequest(scripturl)
 				displayErrorPopup("The connection to github is taking a while, Please be patient.")
 			end
 		end)
-		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/"..readfile("goat/commithash.txt").."/"..scripturl, true) end)
 		if not suc or res == "404: Not Found" then
-			displayErrorPopup("Failed to connect to github : vape/"..scripturl.." : "..res)
+			displayErrorPopup("Failed to connect to github : goat/"..scripturl.." : "..res)
 			error(res)
 		end
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
-		writefile("vape/"..scripturl, res)
+		writefile("goat/"..scripturl, res)
 	end
-	return readfile("vape/"..scripturl)
+	return readfile("goat/"..scripturl)
 end
 
-if not shared.VapeDeveloper then 
+if not shared.goatDeveloper then 
 	local commit
 	for i,v in pairs(game:HttpGet("https://github.com/cinarkagan/GoatV4"):split("\n")) do 
 		if v:find("commit") and v:find("fragment") then 
@@ -58,32 +58,32 @@ if not shared.VapeDeveloper then
 		end
 	end
 	if commit then
-		if isfolder("vape") then 
-			if ((not isfile("vape/commithash.txt")) or readfile("vape/commithash.txt") ~= commit) then
-				for i,v in pairs({"vape/Universal.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua"}) do 
+		if isfolder("goat") then 
+			if ((not isfile("goat/commithash.txt")) or readfile("goat/commithash.txt") ~= commit) then
+				for i,v in pairs({"goat/Universal.lua", "goat/MainScript.lua", "goat/GuiLibrary.lua"}) do 
 					if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 						delfile(v)
 					end 
 				end
-				if isfolder("vape/CustomModules") then 
-					for i,v in pairs(listfiles("vape/CustomModules")) do 
+				if isfolder("goat/CustomModules") then 
+					for i,v in pairs(listfiles("goat/CustomModules")) do 
 						if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 							delfile(v)
 						end 
 					end
 				end
-				if isfolder("vape/Libraries") then 
-					for i,v in pairs(listfiles("vape/Libraries")) do 
+				if isfolder("goat/Libraries") then 
+					for i,v in pairs(listfiles("goat/Libraries")) do 
 						if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 							delfile(v)
 						end 
 					end
 				end
-				writefile("vape/commithash.txt", commit)
+				writefile("goat/commithash.txt", commit)
 			end
 		else
-			makefolder("vape")
-			writefile("vape/commithash.txt", commit)
+			makefolder("goat")
+			writefile("goat/commithash.txt", commit)
 		end
 	else
 		displayErrorPopup("Failed to connect to github, please try using a VPN.")
@@ -91,4 +91,4 @@ if not shared.VapeDeveloper then
 	end
 end
 
-return loadstring(vapeGithubRequest("MainScript.lua"))()
+return loadstring(goatGithubRequest("MainScript.lua"))()

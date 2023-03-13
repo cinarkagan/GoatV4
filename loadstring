@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/cinarkagan/GoatV4/main/NewMainScript.lua", true))()
