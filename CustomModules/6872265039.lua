@@ -547,7 +547,7 @@ end)
 
 local Sprint = {["Enabled"] = false}
 Sprint = GuiLibrary["ObjectsThatCanBeSaved"]["CombatWindow"]["Api"].CreateOptionsButton({
-	["Name"] = "Sprint",
+	["Name"] = "ToggleSprint",
 	["Function"] = function(callback)
 		if callback then
 			spawn(function()
